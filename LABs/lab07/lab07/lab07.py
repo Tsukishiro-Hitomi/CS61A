@@ -85,7 +85,12 @@ class Account:
         """Return the number of years until balance would grow to amount."""
         assert self.balance > 0 and amount > 0 and self.interest > 0
         "*** YOUR CODE HERE ***"
-
+        cur_balance = self.balance
+        year = 0
+        while cur_balance < amount:
+            cur_balance *= 1 + self.interest
+            year += 1
+        return year
 
 class FreeChecking(Account):
     """A bank account that charges for withdrawals, but the first two are free!
@@ -115,7 +120,22 @@ class FreeChecking(Account):
     free_withdrawals: int = 2
 
     "*** YOUR CODE HERE ***"
-
+    def withdraw(self, amount: int) -> int | str:
+        
+        if self.free_withdrawals > 0:
+            self.free_withdrawals -= 1
+            if amount > self.balance:
+                return "Insufficient funds"
+            if amount > self.max_withdrawal:
+                return "Can't withdraw that amount"
+            self.balance = self.balance - amount
+        else:
+            if amount + self.withdraw_fee > self.balance:
+                return "Insufficient funds"
+            if amount > self.max_withdrawal:
+                return "Can't withdraw that amount"
+            self.balance -= amount + self.withdraw_fee
+        return self.balance
 
 def without(s: Link, i: int) -> Link:
     """Return a new linked list like s but without the element at index i.
@@ -129,7 +149,11 @@ def without(s: Link, i: int) -> Link:
     Link(3, Link(5, Link(7, Link(9))))
     """
     "*** YOUR CODE HERE ***"
-
+    if i < 0 or s is Link.empty:
+        return s
+    if i == 0:
+        return s.rest
+    return Link(s.first, without(s.rest, i - 1))
 
 def duplicate_link(s: Link, val: int) -> None:
     """Mutates s so that each element equal to val is followed by another val.
@@ -148,4 +172,11 @@ def duplicate_link(s: Link, val: int) -> None:
     Link(1, Link(2, Link(2, Link(2, Link(2, Link(3))))))
     """
     "*** YOUR CODE HERE ***"
-
+    if s is Link.empty:
+        return
+    if s.first == val:
+        old_rest = s.rest
+        s.rest = Link(val, old_rest)
+        duplicate_link(s.rest.rest, val)
+    else:
+        duplicate_link(s.rest, val)
