@@ -10,6 +10,15 @@ def hailstone(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    assert n > 0
+    if n == 1:
+        while True:
+            yield 1
+    yield n
+    if n % 2 == 0:
+        yield from hailstone(n // 2)
+    else:
+        yield from hailstone(3 * n + 1)
 
 
 def merge(a, b):
@@ -31,10 +40,17 @@ def merge(a, b):
     while True:
         if a_val == b_val:
             "*** YOUR CODE HERE ***"
+            yield a_val
+            a_val = next(a)
+            b_val = next(b)
         elif a_val < b_val:
             "*** YOUR CODE HERE ***"
+            yield a_val
+            a_val = next(a)
         else:
             "*** YOUR CODE HERE ***"
+            yield b_val
+            b_val = next(b)
 
 
 def stair_ways(n):
@@ -51,7 +67,17 @@ def stair_ways(n):
     []
     """
     "*** YOUR CODE HERE ***"
+    if n == 0:
+        yield []
 
+    if n == 1:
+        yield [1]
+
+    if n > 1:
+        for s in stair_ways(n - 1):
+            yield [1] + s
+        for s in stair_ways(n - 2):
+            yield [2] + s
 
 def yield_paths(t, target):
     """
@@ -89,12 +115,10 @@ def yield_paths(t, target):
     [[0, 2], [0, 2, 1, 2]]
     """
     if label(t) == target:
-        yield ____
+        yield [target]
     for b in branches(t):
-        for ____ in ____:
-            yield ____
-
-
+        for s in yield_paths(b, target):
+            yield [label(t)] + s
 
 # Tree Data Abstraction
 
@@ -161,3 +185,8 @@ def copy_tree(t):
     """
     return tree(label(t), [copy_tree(b) for b in branches(t)])
 
+
+t1 = tree(1, [tree(2, [tree(3), tree(4, [tree(6)]), tree(5)]), tree(5)])
+print(next(yield_paths(t1, 6)))
+path_to_5 = yield_paths(t1, 5)
+print(sorted(list(path_to_5)))
