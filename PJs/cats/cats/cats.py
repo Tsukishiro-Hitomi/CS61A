@@ -1,5 +1,5 @@
 """Typing test implementation"""
-
+import string
 from utils import (
     lower,
     split,
@@ -38,6 +38,12 @@ def pick(paragraphs: list[str], select, k: int) -> str:
     """
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    for paragraph in paragraphs:
+        if select(paragraph) and k == 0:
+            return paragraph
+        if select(paragraph):
+            k -= 1
+    return ''
     # END PROBLEM 1
 
 
@@ -58,6 +64,14 @@ def about(keywords: list[str]):
 
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    def foo(paragraph: str):
+        paragraph = lower(paragraph)
+        paragraph = ''.join([char for char in paragraph if char not in string.punctuation])
+        for word in split(paragraph):
+            if word in keywords:
+                return True
+        return False
+    return foo
     # END PROBLEM 2
 
 
@@ -88,8 +102,24 @@ def accuracy(entered: str, source: str) -> float:
     source_words = split(source)
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
-    # END PROBLEM 3
+    num_entered_words = len(entered_words)
+    num_source_words = len(source_words)
 
+    if num_entered_words == 0 or num_source_words == 0:
+        if num_source_words == num_entered_words:
+            return 100.0
+        return 0.0
+    
+    correct = 0
+    for i in range(min(num_entered_words, num_source_words)):
+        if entered_words[i] == source_words[i]:
+            correct += 1
+    if num_source_words > num_entered_words and correct == num_entered_words:
+        return 100.0
+    return 100 * correct / num_entered_words
+
+
+    # END PROBLEM 3
 
 def wpm(entered: str, elapsed: int) -> float:
     """Return the words-per-minute (WPM) of the ENTERED string.
@@ -106,8 +136,8 @@ def wpm(entered: str, elapsed: int) -> float:
     assert elapsed > 0, "Elapsed time must be positive"
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
+    return len(entered) * 12 / elapsed
     # END PROBLEM 4
-
 
 ################
 # Phase 4 (EC) #
@@ -167,6 +197,21 @@ def autocorrect(entered_word: str, word_list: list[str], diff_function, limit: i
     """
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
+    if entered_word in word_list:
+        return entered_word
+    
+    min_diff = limit + 1
+    min_index = -1
+    for i in range(len(word_list)):
+        word = word_list[i]
+        diff = diff_function(entered_word, word, limit) 
+        if diff <= limit and diff < min_diff:
+            min_diff = diff
+            min_index = i
+    if min_index == -1:
+        return entered_word
+    return word_list[min_index]
+
     # END PROBLEM 5
 
 
@@ -193,7 +238,15 @@ def furry_fixes(entered: str, source: str, limit: int) -> int:
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    def recurrence(entered: str, source: str, limit: int, index: int, cur_diff: int):
+        if cur_diff > limit:
+            return limit + 1
+        if index == min(len(entered), len(source)):
+            return cur_diff + abs(len(entered) - len(source))
+        if entered[index] != source[index]:
+            cur_diff += 1
+        return recurrence(entered, source, limit, index + 1, cur_diff)
+    return recurrence(entered, source, limit, 0, 0)
     # END PROBLEM 6
 
 
@@ -214,22 +267,26 @@ def minimum_mewtations(entered: str, source: str, limit: int) -> int:
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
+    if limit < 0: # Base cases should go here, you may add more base cases as needed.
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return 1
         # END
     # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
+    if len(entered) == 0 or len(source) == 0: # Feel free to remove or add additional cases
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return abs(len(entered) - len(source))
         # END
+    if entered[0] == source[0]:
+        return minimum_mewtations(entered[1:], source[1:], limit)
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
+        add = 1 + minimum_mewtations(entered, source[1:], limit - 1) # Fill in these lines
+        remove = 1 + minimum_mewtations(entered[1:], source, limit - 1)
+        substitute = 1 + minimum_mewtations(entered[1:], source[1:], limit - 1)
         # BEGIN
         "*** YOUR CODE HERE ***"
+        return min(add, remove, substitute)
         # END
 
 
@@ -240,11 +297,24 @@ minimum_mewtations = count(minimum_mewtations)
 def final_diff(entered: str, source: str, limit: int) -> int:
     """A diff function that takes in a string ENTERED, a string SOURCE, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, "Remove this line to use your final_diff function."
+    return furry_fixes(entered, source, limit)
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
 
+'''
+final_diff = mimimum_mewtations:
+Correction Speed: 264.59765013145875 wpm
+Correctly Corrected: 134 words
+Incorrectly Corrected: 48 words
+Uncorrected: 17 words
+
+final_diff = furry_fixes:
+Correction Speed: 85640.37138055646 wpm
+Correctly Corrected: 426 words
+Incorrectly Corrected: 402 words
+Uncorrected: 112 words
+'''
 
 ###########
 # Phase 3 #
@@ -276,6 +346,16 @@ def report_progress(entered: list[str], source: list[str], user_id: int, upload)
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    correct = 0
+    for i in range(len(entered)):
+        if entered[i] == source[i]:
+            correct += 1
+        else:
+            break
+    progress = correct / len(source)
+    record = {'id': user_id, 'progress': progress}
+    upload(record)
+    return progress
     # END PROBLEM 8
 
 
@@ -300,6 +380,11 @@ def time_per_word(words: list[str], timestamps_per_player: list[list[int]]) -> d
     ts_by_player = timestamps_per_player  # A shorter name (for convenience)
     # BEGIN PROBLEM 9
     times = []  # You may remove this line
+    for player in timestamps_per_player:
+        per_time = []
+        for i in range(len(player) - 1):
+            per_time.append(player[i + 1] - player[i])
+        times.append(per_time)
     # END PROBLEM 9
     return {'words': words, 'times': times}
 
@@ -328,6 +413,14 @@ def fastest_words(words_and_times: dict) -> list[list[str]]:
     w_idxs = range(len(words))    # contains an *index* for each word
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
+    ans = [[] for _ in pl_idxs]
+    for w in w_idxs:
+        time_word = []
+        for pl in pl_idxs:
+            time_word.append(get_time(times, pl, w))
+        fastest_pl = time_word.index(min(time_word))
+        ans[fastest_pl].append(words[w])
+    return ans
     # END PROBLEM 10
 
 
@@ -353,7 +446,7 @@ def get_time(times, player_num, word_index):
     return times[player_num][word_index]
 
 
-enable_multiplayer = False  # Change to True when you're ready to race.
+enable_multiplayer = True  # Change to True when you're ready to race.
 
 ##########################
 # Command Line Interface #
