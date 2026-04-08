@@ -1,14 +1,21 @@
 (define (square n) (* n n))
-
-(define (pow base exp) 'YOUR-CODE-HERE)
+(define (pow base exp) 
+  (if (= exp 0) 
+      1
+      (if (= (modulo exp 2) 0) 
+          (square (pow base (/ exp 2)))
+          (* base (pow base (- exp 1)))
+      )
+  )
+)
 
 (define (repeatedly-cube n x)
   (if (zero? n)
       x
-      (begin (define y ___) ___)))
+      (begin (define y (pow x 3)) (repeatedly-cube (- n 1) y))))
 
 (define (cddr s) (cdr (cdr s)))
 
-(define (cadr s) 'YOUR-CODE-HERE)
+(define (cadr s) (car (cdr s)))
 
-(define (caddr s) 'YOUR-CODE-HERE)
+(define (caddr s) (car (cddr s)))
