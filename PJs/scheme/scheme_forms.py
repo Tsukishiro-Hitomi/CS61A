@@ -46,6 +46,26 @@ def do_define_form(expressions, env):
         # defining a named procedure e.g. (define (f x y) (+ x y))
         # BEGIN PROBLEM 10
         "*** YOUR CODE HERE ***"
+        # solution 1:
+        # (define (f x y) (+ x y)) -> (define f (lambda (x y) (+ x y)))
+        # new_expressions = Link(signature.first, Link(Link('lambda', Link(signature.rest, expressions.rest))))
+        # return do_define_form(new_expressions, env)
+
+        # solution 2:
+        symbol = signature.first
+        formals = signature.rest
+        
+        # check valid formals
+        formal = formals
+        while formal is not Link.empty:
+            if not scheme_symbolp(formal.first):
+                raise SchemeError('invalid formal: {0}'.format(formal.first))
+            formal = formal.rest
+
+        body = expressions.rest
+        procedure = LambdaProcedure(formals, body, env)
+        env.define(symbol, procedure)
+        return symbol
         # END PROBLEM 10
     else:
         bad_signature = signature.first if isinstance(signature, Link) else signature
@@ -88,6 +108,8 @@ def do_lambda_form(expressions, env):
     validate_formals(formals)
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    body = expressions.rest
+    return LambdaProcedure(formals, body, env)
     # END PROBLEM 7
 
 def do_if_form(expressions, env):

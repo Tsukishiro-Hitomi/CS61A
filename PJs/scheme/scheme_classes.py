@@ -58,6 +58,14 @@ class Frame:
             raise SchemeError('Incorrect number of arguments to function call')
         # BEGIN PROBLEM 8
         "*** YOUR CODE HERE ***"
+        frame = Frame(parent=self)
+        while formals is not Link.empty and vals is not Link.empty:
+            formal = formals.first
+            val = vals.first
+            frame.define(formal, val)
+            formals = formals.rest
+            vals = vals.rest
+        return frame
         # END PROBLEM 8
 
 ##############
