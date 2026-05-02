@@ -143,6 +143,15 @@ def do_and_form(expressions, env):
     """
     # BEGIN PROBLEM 12
     "*** YOUR CODE HERE ***"
+    cur = expressions
+    while cur is not Link.empty:
+        value = scheme_eval(cur.first, env)
+        if (is_scheme_false(value)):
+            return False
+        if cur.rest is Link.empty:
+            return value
+        cur = cur.rest
+    return True
     # END PROBLEM 12
 
 def do_or_form(expressions, env):
@@ -161,6 +170,13 @@ def do_or_form(expressions, env):
     """
     # BEGIN PROBLEM 12
     "*** YOUR CODE HERE ***"
+    cur = expressions
+    while cur is not Link.empty:
+        value = scheme_eval(cur.first, env)
+        if is_scheme_true(value):
+            return value
+        cur = cur.rest
+    return False
     # END PROBLEM 12
 
 def do_cond_form(expressions, env):
@@ -181,6 +197,11 @@ def do_cond_form(expressions, env):
         if is_scheme_true(test):
             # BEGIN OPTIONAL PROBLEM 1
             "*** YOUR CODE HERE ***"
+            result = clause.rest
+            if result is Link.empty:
+                return test
+            else:
+                return eval_all(result, env)
             # END OPTIONAL PROBLEM 1
         expressions = expressions.rest
 
@@ -247,6 +268,8 @@ def do_mu_form(expressions, env):
     validate_formals(formals)
     # BEGIN PROBLEM 11
     "*** YOUR CODE HERE ***"
+    body = expressions.rest
+    return MuProcedure(formals, body)
     # END PROBLEM 11
 
 
